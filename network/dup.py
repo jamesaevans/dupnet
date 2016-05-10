@@ -33,9 +33,9 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_integer('batch_size', 128,
                             """Number of images to process in a batch.""")
 tf.app.flags.DEFINE_string('data_dir', './tmp/dup_data',
-                           """Path to the CIFAR-10 data directory.""")
+                           """Path to the CIFAR-100 data directory.""")
 
-# Global constants describing the CIFAR-10 data set.
+# Global constants describing the CIFAR-100 data set.
 IMAGE_SIZE = 24
 NUM_CLASSES = 10
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 20000
@@ -52,9 +52,6 @@ INITIAL_LEARNING_RATE = 0.1       # Initial learning rate.
 # to differentiate the operations. Note that this prefix is removed from the
 # names of the summaries when visualizing a model.
 TOWER_NAME = 'tower'
-
-DATA_URL = 'http://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz'
-
 
 def _activation_summary(x):
   """Helper to create summaries for activations.
@@ -152,7 +149,7 @@ def unlabeled_inputs(filename):
                                         batch_size=FLAGS.batch_size)
 
 def inference(images):
-  """Build the CIFAR-10 model.
+  """Build the CIFAR-100 model.
   Args:
     images: Images returned from distorted_inputs() or inputs().
   Returns:
@@ -339,22 +336,3 @@ def evaluation(logits, labels):
 
 def predict(logits):
   return tf.nn.softmax(logits)
-
-def maybe_download_and_extract():
-  """Download and extract the tarball from Alex's website."""
-  dest_directory = FLAGS.data_dir
-  if not os.path.exists(dest_directory):
-    os.makedirs(dest_directory)
-  filename = DATA_URL.split('/')[-1]
-  filepath = os.path.join(dest_directory, filename)
-  if not os.path.exists(filepath):
-    def _progress(count, block_size, total_size):
-      sys.stdout.write('\r>> Downloading %s %.1f%%' % (filename,
-          float(count * block_size) / float(total_size) * 100.0))
-      sys.stdout.flush()
-    filepath, _ = urllib.request.urlretrieve(DATA_URL, filepath,
-                                             reporthook=_progress)
-    print()
-    statinfo = os.stat(filepath)
-    print('Successfully downloaded', filename, statinfo.st_size, 'bytes.')
-    tarfile.open(filepath, 'r:gz').extractall(dest_directory)
